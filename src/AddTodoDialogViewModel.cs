@@ -3,25 +3,32 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using MvvmDialogs;
 
-namespace TodoList
+namespace Todos
 {
     public class AddTodoDialogViewModel : ViewModelBase, IModalDialogViewModel
     {
+        private readonly RelayCommand okCommand;
+
         private string name;
         private bool? dialogResult;
 
         public AddTodoDialogViewModel()
         {
-            OkCommand = new RelayCommand(Ok);
+            okCommand = new RelayCommand(Ok, CanOk);
         }
 
         public string Name
         {
             get => name;
-            set => Set(nameof(Name), ref name, value);
+            set
+            {
+                Set(nameof(Name), ref name, value);
+
+                okCommand.RaiseCanExecuteChanged();
+            }
         }
 
-        public ICommand OkCommand { get; }
+        public ICommand OkCommand => okCommand;
 
         public bool? DialogResult
         {
@@ -35,6 +42,11 @@ namespace TodoList
             {
                 DialogResult = true;
             }
+        }
+
+        private bool CanOk()
+        {
+            return !string.IsNullOrWhiteSpace(Name);
         }
     }
 }

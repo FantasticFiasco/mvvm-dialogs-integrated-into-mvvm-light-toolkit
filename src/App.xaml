@@ -1,8 +1,8 @@
 ﻿<Application
-    x:Class="TodoList.App"
+    x:Class="Todos.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:TodoList"
+    xmlns:local="clr-namespace:Todos"
     StartupUri="MainWindow.xaml">
 
     <Application.Resources>

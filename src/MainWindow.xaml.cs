@@ -1,4 +1,4 @@
-﻿namespace TodoList
+﻿namespace Todos
 {
     public partial class MainWindow
     {

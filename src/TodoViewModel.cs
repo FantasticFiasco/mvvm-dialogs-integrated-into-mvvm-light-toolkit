@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 
-namespace TodoList
+namespace Todos
 {
     public class TodoViewModel : ViewModelBase
     {

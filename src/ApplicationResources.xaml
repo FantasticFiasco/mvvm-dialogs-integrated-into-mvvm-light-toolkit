@@ -15,7 +15,7 @@
     -->
 
     <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseStyle}">
-        <Setter Property="MinWidth" Value="100" />
+        <Setter Property="MinWidth" Value="85" />
     </Style>
 
     <Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource BaseStyle}"/>

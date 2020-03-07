@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -6,48 +8,83 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using MvvmDialogs;
 
-namespace TodoList
+namespace Todos
 {
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly IDialogService dialogService;
+        private readonly RelayCommand addCommand;
+        private readonly RelayCommand clearCompletedCommand;
 
         public MainWindowViewModel(IDialogService dialogService)
         {
             this.dialogService = dialogService;
 
-            AddCommand = new RelayCommand(Add);
-            ClearCompletedCommand = new RelayCommand(ClearCompleted);
+            addCommand = new RelayCommand(Add);
+            clearCompletedCommand = new RelayCommand(ClearCompleted, CanClearCompleted);
+
+            Todos.CollectionChanged += OnTodoCollectionChanged;
         }
 
         public ObservableCollection<TodoViewModel> Todos { get; } = new ObservableCollection<TodoViewModel>();
 
-        public ICommand AddCommand { get; }
+        public ICommand AddCommand => addCommand;
 
-        public ICommand ClearCompletedCommand { get; }
+        public ICommand ClearCompletedCommand => clearCompletedCommand;
 
         private void Add()
         {
-            var addTodoDialogViewModel = new AddTodoDialogViewModel();
+            var dialogViewModel = new AddTodoDialogViewModel();
 
-            var success = dialogService.ShowDialog(this, addTodoDialogViewModel);
+            var success = dialogService.ShowDialog(this, dialogViewModel);
             if (success == true)
             {
-                Todos.Add(new TodoViewModel(addTodoDialogViewModel.Name));
+                Todos.Add(new TodoViewModel(dialogViewModel.Name));
             }
         }
 
         private void ClearCompleted()
         {
             var result = dialogService.ShowMessageBox(this, "Are you sure?", "Clear Completed", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (result != MessageBoxResult.Yes)
+            if (result == MessageBoxResult.Yes)
             {
-                return;
+                foreach (var completed in Todos.Where(todo => todo.IsCompleted).ToArray())
+                {
+                    Todos.Remove(completed);
+                }
             }
+        }
 
-            foreach (var completed in Todos.Where(todo => todo.IsCompleted).ToArray())
+        private bool CanClearCompleted()
+        {
+            return Todos.Any(todo => todo.IsCompleted);
+        }
+
+        private void OnTodoCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
             {
-                Todos.Remove(completed);
+                case NotifyCollectionChangedAction.Add:
+                    foreach (TodoViewModel todo in e.NewItems)
+                    {
+                        todo.PropertyChanged += OnTodoPropertyChanged;
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (TodoViewModel todo in e.OldItems)
+                    {
+                        todo.PropertyChanged -= OnTodoPropertyChanged;
+                    }
+                    break;
+            }
+        }
+
+        private void OnTodoPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(TodoViewModel.IsCompleted))
+            {
+                clearCompletedCommand.RaiseCanExecuteChanged();
             }
         }
     }
