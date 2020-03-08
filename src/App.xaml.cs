@@ -13,6 +13,8 @@ namespace Todos
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // Register the dialog service in the IoC container, enabling us to inject the service
+            // into view models that require opening dialogs
             SimpleIoc.Default.Register<IDialogService>(() => new DialogService());
         }
     }
