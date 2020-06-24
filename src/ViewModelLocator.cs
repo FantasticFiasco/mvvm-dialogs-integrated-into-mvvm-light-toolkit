@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Ioc;
+using MvvmDialogs;
 
 namespace Todos
 {
@@ -11,6 +12,7 @@ namespace Todos
         public ViewModelLocator()
         {
             SimpleIoc.Default.Register<MainWindowViewModel>();
+            SimpleIoc.Default.Register<IDialogService>(() => new DialogService());
         }
 
         public MainWindowViewModel MainWindow => SimpleIoc.Default.GetInstance<MainWindowViewModel>();
